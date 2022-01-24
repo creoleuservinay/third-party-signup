@@ -1,12 +1,12 @@
 /**
  * Express
  */
-require('dotenv').config();
+require("dotenv").config();
 const express = require("express");
 const passport = require("passport");
 const app = express();
 require("./auth");
-app.set('view engine', 'ejs');
+app.set("view engine", "ejs");
 /**
  * Passport
  */
@@ -23,16 +23,20 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 function isLoggedIn(req, res, next) {
-  req.user ? next() : res.status(401).send('Unauthorised user!');
+  req.user ? next() : res.status(401).send("Unauthorised user!");
 }
 // passport
 
 app.get("/", function (req, res) {
-    res.render('pages/auth', {user : req.user});
+  if ( req.isAuthenticated() ) {
+    res.render("pages/user/dashboard", { user: req.user });
+  } else {
+    res.render("pages/auth");
+  }
 
-//   res.send(
-//     '<a href="/auth/google" class="btn btn-danger"><span class="fa fa-google"></span> SignIn with Google</a>'
-//   );
+  //   res.send(
+  //     '<a href="/auth/google" class="btn btn-danger"><span class="fa fa-google"></span> SignIn with Google</a>'
+  //   );
 });
 
 app.get(
@@ -42,16 +46,27 @@ app.get(
 app.get(
   "/auth/google/callback",
   passport.authenticate("google", {
-    successRedirect: "/dashboard",
+    successRedirect: "/",
     failureRedirect: "/failure",
   })
 );
 
-app.get("/dashboard", isLoggedIn, function (req, res) {
-   res.render('pages/user/dashboard', {user : req.user});
+app.get("/welcome", function (req, res) {
+  if ( req.isAuthenticated() ) {
+    res.render("pages/user/dashboard", { user: req.user });
+  } else {
+    res.redirect('/');
+  }
 });
 app.get("/failure", function (req, res) {
   return res.send("Hello something went wrong");
+});
+
+app.get("/logout", function (req, res) {
+  req.logout();
+  req.session.destroy(()=>{
+    res.redirect('/');
+  });
 });
 
 const port = process.env.PORT || 3000;
