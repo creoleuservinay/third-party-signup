@@ -1,12 +1,9 @@
-/**
- * Express
- */
 require("dotenv").config();
 const express = require("express");
-const passport = require("passport");
 const app = express();
-require("./auth");
+const passport = require("passport");
 app.set("view engine", "ejs");
+const auth = require("./auth");
 /**
  * Passport
  */
@@ -28,15 +25,11 @@ function isLoggedIn(req, res, next) {
 // passport
 
 app.get("/", function (req, res) {
-  if ( req.isAuthenticated() ) {
+  if (req.isAuthenticated()) {
     res.render("pages/user/dashboard", { user: req.user });
   } else {
     res.render("pages/auth");
   }
-
-  //   res.send(
-  //     '<a href="/auth/google" class="btn btn-danger"><span class="fa fa-google"></span> SignIn with Google</a>'
-  //   );
 });
 
 app.get(
@@ -52,10 +45,10 @@ app.get(
 );
 
 app.get("/welcome", function (req, res) {
-  if ( req.isAuthenticated() ) {
+  if (req.isAuthenticated()) {
     res.render("pages/user/dashboard", { user: req.user });
   } else {
-    res.redirect('/');
+    res.redirect("/");
   }
 });
 app.get("/failure", function (req, res) {
@@ -64,8 +57,8 @@ app.get("/failure", function (req, res) {
 
 app.get("/logout", function (req, res) {
   req.logout();
-  req.session.destroy(()=>{
-    res.redirect('/');
+  req.session.destroy(() => {
+    res.redirect("/");
   });
 });
 
